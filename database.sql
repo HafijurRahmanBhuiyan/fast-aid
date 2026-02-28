@@ -5,8 +5,14 @@
 CREATE DATABASE IF NOT EXISTS fastaid_db;
 USE fastaid_db;
 
+-- Drop tables if exists (for clean setup)
+DROP TABLE IF EXISTS service_requests;
+DROP TABLE IF EXISTS patients;
+DROP TABLE IF EXISTS volunteers;
+DROP TABLE IF EXISTS admins;
+
 -- Admins table
-CREATE TABLE IF NOT EXISTS admins (
+CREATE TABLE admins (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -14,7 +20,7 @@ CREATE TABLE IF NOT EXISTS admins (
 ) ENGINE=InnoDB;
 
 -- Volunteers table
-CREATE TABLE IF NOT EXISTS volunteers (
+CREATE TABLE volunteers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
@@ -28,7 +34,7 @@ CREATE TABLE IF NOT EXISTS volunteers (
 ) ENGINE=InnoDB;
 
 -- Patients table
-CREATE TABLE IF NOT EXISTS patients (
+CREATE TABLE patients (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
@@ -41,10 +47,11 @@ CREATE TABLE IF NOT EXISTS patients (
 ) ENGINE=InnoDB;
 
 -- Service requests table
-CREATE TABLE IF NOT EXISTS service_requests (
+CREATE TABLE service_requests (
     id INT AUTO_INCREMENT PRIMARY KEY,
     patient_id INT NOT NULL,
     volunteer_id INT DEFAULT NULL,
+    location VARCHAR(255) NOT NULL,
     status ENUM('pending', 'accepted', 'completed') DEFAULT 'pending',
     request_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE,
@@ -52,6 +59,5 @@ CREATE TABLE IF NOT EXISTS service_requests (
 ) ENGINE=InnoDB;
 
 -- Insert fixed admin (password: admin123 - hashed using bcrypt)
--- Hash generated using password_hash('admin123', PASSWORD_DEFAULT)
 INSERT INTO admins (email, password) VALUES 
 ('admin@fastaid.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
