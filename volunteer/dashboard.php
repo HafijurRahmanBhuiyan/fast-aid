@@ -47,6 +47,7 @@ $csrfToken = generateCSRFToken();
         .status-pending { background: #fff3cd; color: #856404; }
         .status-accepted { background: #d4edda; color: #155724; }
         .status-completed { background: #cce5ff; color: #004085; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
         #map { height: 400px; width: 100%; border-radius: 10px; }
         .notification-badge { animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }

@@ -57,6 +57,9 @@ switch ($action) {
     case 'get_my_requests':
         handleGetMyRequests();
         break;
+    case 'cancel_request':
+        handleCancelRequest();
+        break;
     default:
         $response['message'] = 'Invalid action';
 }
@@ -126,7 +129,7 @@ function handleGetRequestStatus() {
                v.lat as volunteer_lat, v.lng as volunteer_lng
         FROM service_requests sr
         LEFT JOIN volunteers v ON sr.volunteer_id = v.id
-        WHERE sr.patient_id = ? AND sr.status IN ('pending', 'accepted')
+        WHERE sr.patient_id = ? AND sr.status IN ('pending', 'accepted', 'cancelled')
         ORDER BY sr.request_time DESC
         LIMIT 1
     ");
@@ -509,7 +512,7 @@ function handleGetMyRequests() {
         SELECT sr.*, p.name as patient_name, p.location as patient_location, p.phone as patient_phone, p.age as patient_age
         FROM service_requests sr
         JOIN patients p ON sr.patient_id = p.id
-        WHERE sr.volunteer_id = ?
+        WHERE sr.volunteer_id = ? AND sr.status IN ('accepted', 'completed')
         ORDER BY sr.request_time DESC
         LIMIT 20
     ");
@@ -524,4 +527,57 @@ function handleGetMyRequests() {
     
     $response['success'] = true;
     $response['data'] = $requests;
+}
+
+function handleCancelRequest() {
+    global $conn, $response;
+    
+    if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
+        $response['message'] = 'Unauthorized - Please login as patient';
+        return;
+    }
+    
+    if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+        $response['message'] = 'Invalid CSRF token';
+        return;
+    }
+    
+    $requestId = isset($_POST['request_id']) ? (int)$_POST['request_id'] : 0;
+    $userId = (int)$_SESSION['user_id'];
+    
+    if (!$requestId) {
+        $response['message'] = 'Invalid request ID';
+        return;
+    }
+    
+    $checkStmt = $conn->prepare("SELECT id, status FROM service_requests WHERE id = ? AND patient_id = ?");
+    $checkStmt->bind_param("ii", $requestId, $userId);
+    $checkStmt->execute();
+    $checkResult = $checkStmt->get_result();
+    
+    if ($checkResult->num_rows === 0) {
+        $response['message'] = 'Request not found or not owned by you';
+        return;
+    }
+    
+    $request = $checkResult->fetch_assoc();
+    
+    if ($request['status'] !== 'pending') {
+        $response['message'] = 'You can only cancel pending requests. Current status: ' . $request['status'];
+        return;
+    }
+    
+    $stmt = $conn->prepare("DELETE FROM service_requests WHERE id = ? AND patient_id = ? AND status = 'pending'");
+    $stmt->bind_param("ii", $requestId, $userId);
+    
+    if ($stmt->execute()) {
+        if ($stmt->affected_rows > 0) {
+            $response['success'] = true;
+            $response['message'] = 'Request cancelled successfully';
+        } else {
+            $response['message'] = 'Could not cancel. Request may have changed.';
+        }
+    } else {
+        $response['message'] = 'Error: ' . $conn->error;
+    }
 }

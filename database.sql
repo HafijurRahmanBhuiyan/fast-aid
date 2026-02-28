@@ -52,7 +52,7 @@ CREATE TABLE service_requests (
     patient_id INT NOT NULL,
     volunteer_id INT DEFAULT NULL,
     location VARCHAR(255) NOT NULL,
-    status ENUM('pending', 'accepted', 'completed') DEFAULT 'pending',
+    status ENUM('pending', 'accepted', 'completed', 'cancelled') DEFAULT 'pending',
     request_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE,
     FOREIGN KEY (volunteer_id) REFERENCES volunteers(id) ON DELETE SET NULL

@@ -43,6 +43,7 @@ $csrfToken = generateCSRFToken();
         .status-pending { background: #ffc107; color: #000; }
         .status-accepted { background: #28a745; color: #fff; }
         .status-completed { background: #17a2b8; color: #fff; }
+        .status-cancelled { background: #dc3545; color: #fff; }
         .request-status-card { border-left: 4px solid #dc3545; }
     </style>
 </head>
@@ -131,6 +132,7 @@ $csrfToken = generateCSRFToken();
                                         <th>Volunteer</th>
                                         <th>Status</th>
                                         <th>Time</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody id="recentRequestsTable"></tbody>
@@ -266,11 +268,48 @@ $csrfToken = generateCSRFToken();
             });
         }
         
+        function cancelRequest(requestId) {
+            if (!confirm('Are you sure you want to cancel this request? This action cannot be undone.')) {
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('action', 'cancel_request');
+            formData.append('csrf_token', csrfToken);
+            formData.append('request_id', requestId);
+            
+            fetch('../api/requests.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Request cancelled successfully', 'success');
+                    document.getElementById('currentRequestSection').innerHTML = '';
+                    document.getElementById('requestFormSection').style.display = 'block';
+                    loadRecentRequests();
+                } else {
+                    showAlert(data.message, 'danger');
+                }
+            })
+            .catch(err => {
+                showAlert('Failed to cancel request. Please try again.', 'danger');
+            });
+        }
+        
         function updateRequestStatus(request) {
             const section = document.getElementById('currentRequestSection');
-            const statusBadge = request.status === 'pending' ? 'warning' : (request.status === 'accepted' ? 'success' : 'info');
+            const statusBadge = request.status === 'pending' ? 'warning' : (request.status === 'accepted' ? 'success' : request.status === 'cancelled' ? 'danger' : 'info');
             const statusText = request.status === 'pending' ? 'Waiting for Volunteer' : 
-                              request.status === 'accepted' ? 'Volunteer Accepted' : 'Completed';
+                              request.status === 'accepted' ? 'Volunteer Accepted' :
+                              request.status === 'cancelled' ? 'Cancelled' : 'Completed';
+            
+            const cancelButton = request.status === 'pending' ? `
+                <button class="btn btn-outline-danger btn-sm ms-2" onclick="cancelRequest(${request.id})">
+                    <i class="fas fa-times me-1"></i> Cancel Request
+                </button>
+            ` : '';
             
             section.innerHTML = `
                 <div class="card request-status-card mb-4">
@@ -299,8 +338,9 @@ $csrfToken = generateCSRFToken();
                             </div>
                             <div class="col-md-4 text-md-end mt-3 mt-md-0">
                                 <span class="badge fs-6 bg-${statusBadge} px-3 py-2">
-                                    <i class="fas fa-${request.status === 'pending' ? 'clock' : request.status === 'accepted' ? 'check-circle' : 'check-double'} me-1"></i> ${statusText}
+                                    <i class="fas fa-${request.status === 'pending' ? 'clock' : request.status === 'accepted' ? 'check-circle' : request.status === 'cancelled' ? 'times-circle' : 'check-double'} me-1"></i> ${statusText}
                                 </span>
+                                ${cancelButton}
                                 <div class="mt-2 text-muted">
                                     <small>Requested: ${new Date(request.request_time).toLocaleString()}</small>
                                 </div>
@@ -310,7 +350,9 @@ $csrfToken = generateCSRFToken();
                 </div>
             `;
             
-            document.getElementById('requestFormSection').style.display = 'none';
+            if (request.status === 'pending' || request.status === 'accepted' || request.status === 'cancelled') {
+                document.getElementById('requestFormSection').style.display = 'none';
+            }
         }
         
         function loadRecentRequests() {
@@ -323,21 +365,28 @@ $csrfToken = generateCSRFToken();
             .then(data => {
                 const tbody = document.getElementById('recentRequestsTable');
                 if (data.success && data.data && data.data.length > 0) {
-                    tbody.innerHTML = data.data.map(r => `
+                    tbody.innerHTML = data.data.map(r => {
+                        const cancelBtn = r.status === 'pending' ? `
+                            <button class="btn btn-outline-danger btn-sm" onclick="cancelRequest(${r.id})">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        ` : '';
+                        return `
                         <tr>
                             <td>#${r.id}</td>
                             <td>${escapeHtml(r.location)}</td>
                             <td>${r.volunteer_name ? escapeHtml(r.volunteer_name) : '<span class="text-muted">-</span>'}</td>
-                            <td><span class="badge bg-${r.status === 'pending' ? 'warning' : r.status === 'accepted' ? 'success' : 'info'}">${r.status}</span></td>
+                            <td><span class="badge bg-${r.status === 'pending' ? 'warning' : r.status === 'accepted' ? 'success' : r.status === 'cancelled' ? 'danger' : 'info'}">${r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span></td>
                             <td>${new Date(r.request_time).toLocaleString()}</td>
+                            <td>${cancelBtn}</td>
                         </tr>
-                    `).join('');
+                    `}).join('');
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No requests yet</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No requests yet</td></tr>';
                 }
             })
             .catch(err => {
-                document.getElementById('recentRequestsTable').innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Error loading requests</td></tr>';
+                document.getElementById('recentRequestsTable').innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Error loading requests</td></tr>';
             });
         }
         
