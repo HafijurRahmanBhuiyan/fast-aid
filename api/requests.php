@@ -417,11 +417,11 @@ function handleGetNearbyRequests() {
                p.age as patient_age
         FROM service_requests sr
         JOIN patients p ON sr.patient_id = p.id
-        WHERE sr.status = 'pending' AND p.location = ?
+        WHERE sr.status = 'pending' AND (sr.volunteer_id = ? OR sr.volunteer_id IS NULL) AND p.location = ?
         ORDER BY sr.request_time DESC
         LIMIT 20
     ");
-    $stmt->bind_param("s", $volunteerLocation);
+    $stmt->bind_param("is", $userId, $volunteerLocation);
     $stmt->execute();
     $result = $stmt->get_result();
     
