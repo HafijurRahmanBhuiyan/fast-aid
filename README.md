@@ -94,7 +94,7 @@ Access at: `http://localhost:8000`
 ## Project Structure
 
 ```
-fastaid-v2/
+fast-aid/
 ├── config/
 │   ├── database.php      # Database & security functions
 │   └── notifications.php # Email/SMS service
