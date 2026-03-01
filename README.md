@@ -74,12 +74,10 @@ The dashboards work fully without Google Maps.
 
 ### 4. Run the Application
 
-Start a local server:
-```bash
-php -S localhost:8000
-```
-
-Access at: `http://localhost/fast-aid`
+1. git repo: `https://github.com/HafijurRahmanBhuiyan/fast-aid`
+2. From here clone the code on your local device
+3. Put it into the htdocs file (xampp --> htdocs)
+4. Access at: `http://localhost/fast-aid`
 
 ## Default Login
 
@@ -188,7 +186,7 @@ To enable, follow the steps in the Installation section above.
 
 ## Support
 
-For issues or questions, please open an issue on GitHub.
+For issues or questions, please open an issue on GitHub. Or WhatsApp: 01786444587
 
 ## Developer
 
