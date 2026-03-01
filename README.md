@@ -37,18 +37,20 @@ A comprehensive emergency medical assistance platform connecting patients in nee
 
 ## Installation
 
-### 1. Database Setup
+### 1. Database setup
 
-Create a MySQL database and import the schema:
+   - Start your XAMPP/WAMP server
+   - Open phpMyAdmin (http://localhost/phpmyadmin)
+   - Create a new database named `fastaid_db`
+   - Import the `database.sql` file:
+     - Click on the `fastaid_db` database
+     - Click "Import" tab
+     - Choose the `database.sql` file from the project
+     - Click "Go"
 
-```bash
-mysql -u root -p fastaid_db < database.sql
-```
+   - Then import the `database_enhanced.sql` file
+     
 
-For enhanced features, also import:
-```bash
-mysql -u root -p fastaid_db < database_enhanced.sql
-```
 
 ### 2. Configuration
 
