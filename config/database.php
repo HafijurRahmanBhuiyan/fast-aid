@@ -5,24 +5,22 @@ define('DB_PASSWORD', '');
 define('DB_NAME', 'fastaid_db');
 define('DB_SOCKET', '/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock');
 
-$tempDir = sys_get_temp_dir();
-ini_set('session.save_path', $tempDir);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 error_reporting(E_ALL);
 
-$tempDir = sys_get_temp_dir();
-ini_set('session.save_path', $tempDir);
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
-    
-    if (!isset($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
+}
+
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 function generateCSRFToken() {
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
     if (!isset($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
@@ -30,6 +28,9 @@ function generateCSRFToken() {
 }
 
 function validateCSRFToken($token) {
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
