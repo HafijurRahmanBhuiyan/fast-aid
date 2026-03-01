@@ -79,7 +79,7 @@ Start a local server:
 php -S localhost:8000
 ```
 
-Access at: `http://localhost:8000`
+Access at: `http://localhost/fast-aid`
 
 ## Default Login
 
@@ -181,16 +181,16 @@ To enable, follow the steps in the Installation section above.
 ## Future Enhancements
 
 - Push notifications
-- Real-time WebSocket updates
 - Mobile app API
 - Payment integration
 - Review/rating system
 - Emergency hotline integration
 
-## License
-
-MIT License
-
 ## Support
 
 For issues or questions, please open an issue on GitHub.
+
+## Developer
+
+Name: Hafijur Rahman Bhuiyan
+Phone: 01786444587 or 01533013497
