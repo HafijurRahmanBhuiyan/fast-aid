@@ -21,7 +21,7 @@ A comprehensive emergency medical assistance platform connecting patients in nee
 
 > **Note**: Google Maps integration is optional and disabled by default. See "Google Maps Setup" below.
 
-### For Admins
+### For Admin
 - Approve/reject volunteer registrations
 - View all patients and volunteers
 - Monitor all service requests
