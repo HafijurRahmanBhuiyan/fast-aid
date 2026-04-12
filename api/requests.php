@@ -60,6 +60,9 @@ switch ($action) {
     case 'cancel_request':
         handleCancelRequest();
         break;
+    case 'reject_request':
+        handleRejectRequest();
+        break;
     default:
         $response['message'] = 'Invalid action';
 }
@@ -527,6 +530,60 @@ function handleGetMyRequests() {
     
     $response['success'] = true;
     $response['data'] = $requests;
+}
+
+function handleRejectRequest() {
+    global $conn, $response, $notificationService;
+    
+    if (!isVolunteer()) {
+        $response['message'] = 'Only volunteers can reject requests';
+        return;
+    }
+    
+    if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+        $response['message'] = 'Invalid CSRF token';
+        return;
+    }
+    
+    $requestId = isset($_POST['request_id']) ? (int)$_POST['request_id'] : 0;
+    $volunteerId = (int)$_SESSION['user_id'];
+    
+    if (!$requestId) {
+        $response['message'] = 'Invalid request ID';
+        return;
+    }
+    
+    $checkStmt = $conn->prepare("SELECT sr.id, sr.patient_id, sr.volunteer_id, sr.status, p.name as patient_name, p.phone as patient_phone FROM service_requests sr JOIN patients p ON sr.patient_id = p.id WHERE sr.id = ?");
+    $checkStmt->bind_param("i", $requestId);
+    $checkStmt->execute();
+    $checkResult = $checkStmt->get_result();
+    
+    if ($checkResult->num_rows === 0) {
+        $response['message'] = 'Request not found';
+        return;
+    }
+    
+    $request = $checkResult->fetch_assoc();
+    $patientId = $request['patient_id'];
+    $volunteerName = $_SESSION['name'];
+    
+    $deleteStmt = $conn->prepare("DELETE FROM service_requests WHERE id = ?");
+    $deleteStmt->bind_param("i", $requestId);
+    $deleteStmt->execute();
+    
+    if ($conn->affected_rows > 0) {
+        $notifStmt = $conn->prepare("INSERT INTO notifications (user_id, user_type, message, type) VALUES (?, 'patient', ?, 'request_rejected')");
+        $message = "Volunteer $volunteerName rejected your request. Please try another volunteer.";
+        $notifStmt->bind_param("is", $patientId, $message);
+        $notifStmt->execute();
+        
+        $notificationService->sendRequestRejectedSMS($requestId, $patientId);
+        
+        $response['success'] = true;
+        $response['message'] = 'Request rejected and removed successfully';
+    } else {
+        $response['message'] = 'Could not delete request';
+    }
 }
 
 function handleCancelRequest() {

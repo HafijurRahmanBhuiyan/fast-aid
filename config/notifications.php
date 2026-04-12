@@ -130,6 +130,23 @@ class NotificationService {
         );
     }
     
+    public function sendRequestRejectedSMS($requestId, $patientId) {
+        global $conn;
+        
+        $stmt = $conn->prepare("SELECT p.phone as patient_phone, v.name as volunteer_name FROM service_requests sr JOIN patients p ON sr.patient_id = p.id LEFT JOIN volunteers v ON v.id = (SELECT volunteer_id FROM service_requests WHERE id = ?) WHERE sr.id = ?");
+        $stmt->bind_param("ii", $requestId, $requestId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) return false;
+        
+        $request = $result->fetch_assoc();
+        
+        return $this->sendSMS($request['patient_phone'],
+            "Volunteer {$request['volunteer_name']} rejected your request. Please try another volunteer."
+        );
+    }
+    
     public function sendEmail($to, $subject, $message, $isHtml = true) {
         $headers = "From: {$this->fromName} <{$this->fromEmail}>\r\n";
         $headers .= "MIME-Version: 1.0\r\n";

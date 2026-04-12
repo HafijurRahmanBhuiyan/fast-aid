@@ -249,6 +249,9 @@ $csrfToken = generateCSRFToken();
                         <button class="btn btn-sm btn-success" onclick="acceptRequest(${r.id})">
                             <i class="fas fa-check me-1"></i> Accept
                         </button>
+                        <button class="btn btn-sm btn-danger ms-1" onclick="rejectRequest(${r.id})">
+                            <i class="fas fa-times me-1"></i> Reject
+                        </button>
                     </td>
                 </tr>`).join('');
         }
@@ -297,6 +300,9 @@ $csrfToken = generateCSRFToken();
                         ${r.status === 'accepted' ? `
                         <button class="btn btn-sm btn-primary" onclick="completeRequest(${r.id})">
                             <i class="fas fa-check-double me-1"></i> Complete
+                        </button>
+                        <button class="btn btn-sm btn-danger ms-1" onclick="rejectRequest(${r.id})">
+                            <i class="fas fa-times me-1"></i> Reject
                         </button>` : ''}
                     </td>
                 </tr>
@@ -325,6 +331,28 @@ $csrfToken = generateCSRFToken();
             formData.append('request_id', requestId);
             if (lat) formData.append('lat', lat);
             if (lng) formData.append('lng', lng);
+            
+            fetch('../api/requests.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                showAlert(data.message, data.success ? 'success' : 'danger');
+                if (data.success) {
+                    loadAvailableRequests();
+                    loadMyRequests();
+                }
+            });
+        }
+        
+        function rejectRequest(requestId) {
+            if (!confirm('Reject this emergency request?')) return;
+            
+            const formData = new FormData();
+            formData.append('action', 'reject_request');
+            formData.append('csrf_token', csrfToken);
+            formData.append('request_id', requestId);
             
             fetch('../api/requests.php', {
                 method: 'POST',

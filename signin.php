@@ -1,6 +1,24 @@
 <?php
 require_once 'config/database.php';
 
+if (!$conn) {
+    die(
+    "<!DOCTYPE html>
+    <html><head><title>Setup Required</title></head>
+    <body style='font-family:sans-serif;padding:40px;text-align:center;background:#f5f5f5;'>
+        <div style='max-width:500px;margin:50px auto;background:white;padding:30px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);'>
+            <h2 style='color:#dc3545;'>Database Setup Required</h2>
+            <p>MySQL connection failed. To run this application:</p>
+            <ol style='text-align:left;'>
+                <li>Install MySQL server</li>
+                <li>Create database 'fastaid_db'</li>
+                <li>Import database.sql file</li>
+                <li>Ensure MySQL is running on port 3306</li>
+            </ol>
+        </div>
+    </body></html>");
+}
+
 if (isLoggedIn()) {
     switch ($_SESSION['role']) {
         case 'admin':

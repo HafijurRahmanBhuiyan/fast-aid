@@ -136,14 +136,16 @@ function uploadFile($file, $directory) {
     ];
 }
 
-$conn = mysqli_connect($dbServer, $dbUsername, $dbPassword, $dbName, $dbPort, $dbSocket ?: null);
-
-if (!$conn) {
-    error_log("Database connection failed: " . mysqli_connect_error());
-    die("Database connection error. Please try again later.");
+try {
+    $conn = @mysqli_connect($dbServer, $dbUsername, $dbPassword, $dbName, $dbPort);
+    if (!$conn) {
+        $conn = null;
+    } else {
+        mysqli_set_charset($conn, 'utf8mb4');
+    }
+} catch (Exception $e) {
+    $conn = null;
 }
-
-mysqli_set_charset($conn, 'utf8mb4');
 
 function sanitize($data) {
     global $conn;

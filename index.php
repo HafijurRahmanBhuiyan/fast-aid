@@ -1,6 +1,10 @@
 <?php
 require_once 'config/database.php';
 
+if (!$conn) {
+    die("<!DOCTYPE html><html><head><title>Setup Required</title></head><body style='font-family:sans-serif;padding:40px;text-align:center;'><h2>Database Setup Required</h2><p>Please configure MySQL and import the database.</p></body></html>");
+}
+
 if (isLoggedIn()) {
     switch ($_SESSION['role']) {
         case 'admin':
