@@ -1,9 +1,10 @@
 <?php
-define('DB_SERVER', 'localhost');
-define('DB_USERNAME', 'root');
-define('DB_PASSWORD', '');
-define('DB_NAME', 'fastaid_db');
-define('DB_SOCKET', '/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock');
+$dbServer = getenv('DB_SERVER') ?: 'localhost';
+$dbUsername = getenv('DB_USERNAME') ?: 'root';
+$dbPassword = getenv('DB_PASSWORD') ?: '';
+$dbName = getenv('DB_NAME') ?: 'fastaid_db';
+$dbPort = getenv('DB_PORT') ?: 3306;
+$dbSocket = getenv('DB_SOCKET') ?: '';
 
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
@@ -135,7 +136,7 @@ function uploadFile($file, $directory) {
     ];
 }
 
-$conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME, 3306, DB_SOCKET);
+$conn = mysqli_connect($dbServer, $dbUsername, $dbPassword, $dbName, $dbPort, $dbSocket ?: null);
 
 if (!$conn) {
     error_log("Database connection failed: " . mysqli_connect_error());

@@ -319,7 +319,7 @@ if (isLoggedIn()) {
                     <h6 class="text-white mb-4">Contact Us</h6>
                     <ul class="list-unstyled contact-info">
                         <li><i class="fas fa-envelope me-2"></i>support@fastaid.com</li>
-                        <li><i class="fas fa-phone me-2"></i>1-800-FAST-AID</li>
+                        <li><i class="fas fa-phone me-2"></i>01786444587</li>
                         <li><i class="fas fa-map-marker me-2"></i>Emergency Response Center</li>
                     </ul>
                 </div>
