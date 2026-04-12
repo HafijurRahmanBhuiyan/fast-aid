@@ -169,7 +169,7 @@ $csrfToken = generateCSRFToken();
                             <div class="card-body text-center p-4">
                                 <i class="fas fa-bell fa-3x text-primary mb-3"></i>
                                 <p class="text-muted">Emergency requests will appear here automatically.</p>
-                                <small class="text-muted">Requests refresh every 10 seconds.</small>
+                                <small class="text-muted">Requests refresh every 1 second.</small>
                             </div>
                         </div>
                     </div>
@@ -393,7 +393,7 @@ $csrfToken = generateCSRFToken();
             setInterval(() => {
                 loadAvailableRequests();
                 loadMyRequests();
-            }, 10000);
+            }, 1000);
         }
         
         function showAlert(message, type) {

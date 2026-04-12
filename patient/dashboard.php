@@ -248,7 +248,11 @@ $csrfToken = generateCSRFToken();
         
         function startStatusPolling() {
             checkRequestStatus();
-            setInterval(checkRequestStatus, 5000);
+            loadRecentRequests();
+            setInterval(() => {
+                checkRequestStatus();
+                loadRecentRequests();
+            }, 1000);
         }
         
         function checkRequestStatus() {
