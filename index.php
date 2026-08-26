@@ -1,3 +1,4 @@
+<!-- Auto deployment test -->
 <?php
 require_once 'config/database.php';
 
