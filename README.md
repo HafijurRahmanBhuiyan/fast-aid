@@ -3,6 +3,7 @@
 A comprehensive emergency medical assistance platform connecting patients in need with verified medical volunteers. Built with PHP, MySQL, and Bootstrap.
 
 ## Live Link: https://fastaid.fwh.is
+## Admin Login Credential: admin@fastaid.com  $  Password: admin123
 
 ## Features
 
